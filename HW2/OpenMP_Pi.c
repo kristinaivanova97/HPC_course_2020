@@ -35,7 +35,7 @@ int main()
     omp_set_num_threads(nThreads);
     seedThreads();
 
-    #pragma omp parallel firstprivate(counter) shared(seeds) private(x,y, tid, seed) //reduction(+:N_inside)
+    #pragma omp parallel firstprivate(counter) shared(seeds) private(x,y, tid, seed) reduction(+:N_inside)
        {
            //unsigned int seed = (unsigned) time(NULL);
            //unsigned int seed_safe;

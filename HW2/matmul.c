@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <omp.h>
 
 void zero_init_matrix(double ** matrix, size_t N)
 {
@@ -54,7 +55,7 @@ int main()
 {
     const size_t N = 1000; // size of an array
 
-    clock_t start, end;   
+    //clock_t start, end;
  
     double ** A, ** B, ** C; // matrices
     
@@ -70,12 +71,12 @@ int main()
     rand_init_matrix(B, N);
     zero_init_matrix(C, N);
 
-    start = clock();
+    //start = clock();
 
 //
 //  matrix multiplication algorithm
 //
-    
+    double mo =- omp_get_wtime();
     #pragma omp parallel shared(A,B,C) private(i,j,n)
        {
     #pragma omp for schedule(static)
@@ -91,24 +92,24 @@ int main()
        }
        
 
-    end = clock();
+    mo += omp_get_wtime();
 
-    printf("Time elapsed (nij): %f seconds.\n", (double)(end - start) / CLOCKS_PER_SEC);
+    //printf("Time elapsed (nij): %f seconds.\n", (double)(end - start) / CLOCKS_PER_SEC);
+    printf("Time elapsed (nij): %f seconds.\n", mo);
 
     free_matrix(A, N);
     free_matrix(B, N);
     free_matrix(C, N);
     main_ijn();
     main_jin();
-    // nij loops showed the best performance (18 seconds), then jin and the worst is ijn (50 seconds)
+    // nij loops showed the best performance (6 seconds), then ijn and the worst is jin (16 seconds)
     return 0;
 }
 
 void main_ijn()
 {
         const size_t N = 1000; // size of an array
-
-        clock_t start, end;
+        
      
         double ** A, ** B, ** C; // matrices
         
@@ -124,8 +125,7 @@ void main_ijn()
         rand_init_matrix(B, N);
         zero_init_matrix(C, N);
 
-        start = clock();
-
+        double mo =- omp_get_wtime();
         #pragma omp parallel shared(A,B,C) private(i,j,n)
            {
         #pragma omp for schedule(static)
@@ -138,11 +138,9 @@ void main_ijn()
                }
            }
            }
-           
-
-        end = clock();
-
-        printf("Time elapsed (ijn): %f seconds.\n", (double)(end - start) / CLOCKS_PER_SEC);
+        mo += omp_get_wtime();
+    
+        printf("Time elapsed (ijn): %f seconds.\n", mo);
 
         free_matrix(A, N);
         free_matrix(B, N);
@@ -152,8 +150,6 @@ void main_ijn()
 void main_jin()
 {
         const size_t N = 1000; // size of an array
-
-        clock_t start, end;
      
         double ** A, ** B, ** C; // matrices
         
@@ -168,8 +164,8 @@ void main_jin()
         rand_init_matrix(A, N);
         rand_init_matrix(B, N);
         zero_init_matrix(C, N);
-
-        start = clock();
+    
+        double mo =- omp_get_wtime();
 
         #pragma omp parallel shared(A,B,C) private(i,j,n)
            {
@@ -183,11 +179,9 @@ void main_jin()
                }
            }
            }
-           
+        mo += omp_get_wtime();
 
-        end = clock();
-
-        printf("Time elapsed (jin): %f seconds.\n", (double)(end - start) / CLOCKS_PER_SEC);
+        printf("Time elapsed (jin): %f seconds.\n", mo);
 
         free_matrix(A, N);
         free_matrix(B, N);
